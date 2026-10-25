@@ -1,0 +1,11 @@
+tensorflow
+opencv-python
+numpy
+pandas
+scikit-learn
+Flask
+Flask-Cors
+Flask-SQLAlchemy
+PyMySQL
+imutils
+Pillow

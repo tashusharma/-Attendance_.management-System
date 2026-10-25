@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Student Attendance &amp; Time Tracking</h1>
+    <span class="date-pill">{{ today.strftime('%d %B %Y') }}</span>
+  </header>
+
+  <main>
+    {% set present_count = logs | selectattr("0.status", "equalto", "Present") | list | length %}
+    {% set partial_count = logs | selectattr("0.status", "equalto", "Partial") | list | length %}
+    {% set absent_count = logs | selectattr("0.status", "equalto", "Absent") | list | length %}
+
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="num">{{ logs | length }}</div>
+        <div class="label">Recognized Today</div>
+      </div>
+      <div class="summary-card">
+        <div class="num">{{ present_count }}</div>
+        <div class="label">Present</div>
+      </div>
+      <div class="summary-card">
+        <div class="num">{{ partial_count }}</div>
+        <div class="label">Partial</div>
+      </div>
+      <div class="summary-card">
+        <div class="num">{{ absent_count }}</div>
+        <div class="label">Absent</div>
+      </div>
+    </div>
+
+    {% if logs %}
+    <table>
+      <thead>
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Entry Time</th>
+          <th>Final Exit Time</th>
+          <th>Total Break (min)</th>
+          <th>Total Present (min)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log, student in logs %}
+        <tr>
+          <td>{{ student.roll_no }}</td>
+          <td>{{ student.name }}</td>
+          <td>{{ log.entry_time.strftime('%H:%M:%S') if log.entry_time else '-' }}</td>
+          <td>{{ log.final_exit_time.strftime('%H:%M:%S') if log.final_exit_time else '-' }}</td>
+          <td>{{ log.total_break_minutes }}</td>
+          <td>{{ log.total_present_minutes }}</td>
+          <td>
+            {% if log.status == 'Present' %}
+              <span class="badge badge-present">Present</span>
+            {% elif log.status == 'Partial' %}
+              <span class="badge badge-partial">Partial</span>
+            {% else %}
+              <span class="badge badge-absent">Absent</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No attendance recognized yet today. Once a student is detected at the entry camera, their record will appear here.</div>
+    {% endif %}
+  </main>
+</body>
+</html>
